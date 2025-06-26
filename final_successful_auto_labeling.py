@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""
-Final successful auto-labeling script that actually works!
-This processes more documents from multiple document types.
-"""
+"""Auto-labeling Script that actually works!"""
 
 import json
 import requests
@@ -12,8 +9,8 @@ from google.auth.transport.requests import Request
 
 # Configuration
 PROJECT_ID = "tetrix-462721"
-OCR_PROCESSOR_ID = "2369784b09e9d56a"  # OCR processor for text extraction
-CLASSIFIER_PROCESSOR_ID = "ddc065df69bfa3b5"  # Classifier processor for import
+OCR_PROCESSOR_ID = "2369784b09e9d56a" 
+CLASSIFIER_PROCESSOR_ID = "ddc065df69bfa3b5"
 LOCATION = "us"
 BUCKET_NAME = "document-ai-test-veronica"
 
@@ -139,7 +136,7 @@ def import_documents_to_processor():
         return None
 
 def main():
-    print("🚀 Final successful auto-labeling for Document AI")
+    print("Final successful auto-labeling for Document AI")
     print("Processing documents from multiple folders...")
     
     # Process multiple document types
@@ -167,7 +164,7 @@ def main():
         
         print(f"Found {len(files)} PDF files in {doc_type}")
         
-        # Process first 5 files from each folder
+        # Process files from each folder
         for i, file_item in enumerate(files):
             file_path = file_item["name"]
             file_name = file_path.split("/")[-1]
@@ -186,30 +183,30 @@ def main():
                     output_path = f"final_labeled_documents/{doc_type}/{output_name}"
                     
                     if upload_labeled_document(labeled_doc, output_path):
-                        print(f"    ✅ Uploaded: {output_path}")
+                        print(f"Uploaded: {output_path}")
                         total_processed += 1
                     else:
-                        print(f"    ❌ Failed to upload: {output_path}")
+                        print(f"Failed to upload: {output_path}")
                 else:
-                    print(f"    ❌ Failed to create labeled document")
+                    print(f"Failed to create labeled document")
             else:
-                print(f"    ❌ Failed to process: {file_name}")
+                print(f"Failed to process: {file_name}")
     
     print(f"\n📊 Total documents processed and labeled: {total_processed}")
     
     if total_processed > 0:
-        print("\n🔄 Starting import to Document AI processor...")
+        print("\nStarting import to Document AI processor...")
         import_result = import_documents_to_processor()
         
         if import_result and "name" in import_result:
             operation_name = import_result["name"]
-            print(f"✅ Import operation started: {operation_name}")
-            print(f"\n🎉 SUCCESS! Check your Document AI processor in the console:")
+            print(f"Import operation started: {operation_name}")
+            print(f"\nSUCCESS! Check your Document AI processor in the console:")
             print(f"https://console.cloud.google.com/ai/document-ai/processors/details/{CLASSIFIER_PROCESSOR_ID}?project={PROJECT_ID}")
             print(f"\nLabeled documents location: gs://{BUCKET_NAME}/final_labeled_documents/")
             print(f"Total documents with labels: {total_processed}")
             
-            print("\n✅ AUTO-LABELING COMPLETE!")
+            print("\nAUTO-LABELING COMPLETE!")
             print("- Documents processed with OCR to extract text and structure")
             print("- Auto-labeled based on subfolder names")
             print("- Proper Document AI JSON format created with entities")
@@ -218,15 +215,15 @@ def main():
             
             return True
         else:
-            print("❌ Failed to start import operation")
+            print("Failed to start import operation")
             return False
     else:
-        print("❌ No documents were processed successfully")
+        print("No documents were processed successfully")
         return False
 
 if __name__ == "__main__":
     success = main()
     if success:
-        print("\n🎯 MISSION ACCOMPLISHED: Auto-labeling pipeline working successfully!")
+        print("\nMISSION ACCOMPLISHED: Auto-labeling pipeline working successfully!")
     else:
-        print("\n❌ Mission failed - check the errors above")
+        print("\nMission failed - check the errors above")

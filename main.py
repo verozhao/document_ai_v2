@@ -1,7 +1,4 @@
-"""
-Google Cloud Function that triggers on GCS uploads to automatically process documents
-and initiate incremental training when thresholds are met.
-"""
+"""Google Cloud Function that triggers on GCS uploads to automatically process documents and initiate incremental training when thresholds are met."""
 
 import os
 import json
@@ -39,13 +36,23 @@ workflow_execution_client = executions_v1.ExecutionsClient()
 opts = ClientOptions(api_endpoint=f"{LOCATION}-documentai.googleapis.com")
 docai_client = documentai.DocumentProcessorServiceClient(client_options=opts)
 
-# Document type keywords for auto-labeling
+# Document type keywords for auto-labeling (Used as a fallback if subfolder name is not found)
 DOCUMENT_TYPE_KEYWORDS = {
     'CAPITAL_CALL': ['capital call', 'drawdown', 'commitment', 'capital contribution'],
     'DISTRIBUTION_NOTICE': ['distribution', 'proceeds', 'realized', 'dividend'],
-    'FINANCIAL_STATEMENT': ['balance sheet', 'income statement', 'financial statement', 'profit loss'],
-    'PORTFOLIO_SUMMARY': ['portfolio', 'holdings', 'investments', 'asset allocation'],
-    'TAX': ['tax', 'k-1', 'schedule k', '1099', '1040'],
+    'FINANCIAL_STATEMENT': ['balance sheet', 'income statement', 'financial statement', 'profit loss', 'statement of operations'],
+    'FINANCIAL_STATEMENT_AND_PCAP': ['financial statement and pcap', 'statement and pcap', 'combined statement', 'pcap summary'],
+    'PORTFOLIO_SUMMARY': ['portfolio', 'holdings', 'investments', 'asset allocation', 'portfolio summary'],
+    'PORTFOLIO_SUMMARY_AND_PCAP': ['portfolio summary and pcap', 'portfolio and pcap', 'summary and pcap'],
+    'PCAP_STATEMENT': ['pcap', 'pcap statement', 'partner capital account', 'capital account'],
+    'INVESTMENT_OVERVIEW': ['investment overview', 'deal overview', 'investment memo', 'deal summary'],
+    'INVESTOR_MEMOS': ['investor memo', 'investor memos', 'memo to investor'],
+    'INVESTOR_PRESENTATION': ['investor presentation', 'presentation', 'pitch deck', 'investor deck'],
+    'INVESTOR_STATEMENT': ['investor statement', 'statement to investor', 'investor report'],
+    'LEGAL': ['legal', 'agreement', 'contract', 'nda', 'side letter', 'legal document'],
+    'MANAGEMENT_COMMENTARY': ['management commentary', 'manager commentary', 'commentary', 'manager letter'],
+    'TAX': ['tax', 'k-1', 'schedule k', '1099', '1040', 'tax document', 'tax form'],
+    'OTHER': ['other', 'misc', 'miscellaneous', 'general', 'uncategorized'],
 }
 
 
@@ -95,7 +102,7 @@ def process_document_upload(event: Dict[str, Any], context: Any) -> Dict[str, An
             'file_name': file_name,
             'processor_id': PROCESSOR_ID,
             'status': 'pending',
-            'document_label': document_label,  # Important: Store the label for training
+            'document_label': document_label,
             'created_at': datetime.now(timezone.utc),
             'used_for_training': False
         }
@@ -122,7 +129,7 @@ def process_document_upload(event: Dict[str, Any], context: Any) -> Dict[str, An
             doc_data.update({
                 'status': 'completed',
                 'document_type': predicted_type,
-                'document_label': document_label,  # This is what will be used for training
+                'document_label': document_label,
                 'confidence_score': confidence,
                 'processed_at': datetime.now(timezone.utc),
                 'extracted_data': result.get('extracted_data', {})
@@ -180,12 +187,10 @@ def auto_label_document(file_name: str, gcs_uri: str) -> str:
     The subfolder name is used as the document label.
     """
     # Extract subfolder name from the file path
-    # Example: documents/CAPITAL_CALL/doc1.pdf -> CAPITAL_CALL
     path_parts = file_name.split('/')
-    if len(path_parts) > 2:  # Check if file is in a subfolder
-        subfolder = path_parts[1]  # Get the subfolder name
-        # Convert to uppercase and replace spaces with underscores
-        label = subfolder.upper().replace(' ', '_')
+    if len(path_parts) > 2:
+        subfolder = path_parts[1]
+        label = subfolder.lower().replace(' ', '_')
         logger.info(f"Auto-labeled document as {label} based on subfolder")
         return label
     
@@ -257,7 +262,7 @@ def process_with_document_ai(gcs_uri: str, processor_path: str) -> Dict[str, Any
                     confidence = entity.confidence
                     break
         
-        # Also check for labels in the document
+        # Check for labels in the document
         if hasattr(result.document, 'labels') and result.document.labels:
             for label in result.document.labels:
                 if label.confidence > confidence:

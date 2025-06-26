@@ -1,4 +1,3 @@
-# Monitor import operation and start training when complete
 main:
   params: [input]
   steps:

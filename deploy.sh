@@ -1,6 +1,4 @@
-#!/bin/bash
-# Automated Document AI Training Pipeline Deployment Script
-# Optimized version using existing service account
+"""Automated Document AI Training Pipeline Deployment Script"""
 
 set -e
 
@@ -14,11 +12,10 @@ CLOUD_LOCATION="us-central1"
 FUNCTION_LOCATION="us-central1"
 APP_ENGINE_LOCATION="us-central"
 BUCKET_NAME="${GCS_BUCKET_NAME:-document-ai-test-veronica}"
-FUNCTION_NAME="document-ai-service"  # Your existing function name
+FUNCTION_NAME="document-ai-service"
 WORKFLOW_NAME="workflow-1-veronica"
 SCHEDULER_JOB_NAME="document-ai-training-scheduler"
 
-# Use your existing service account (NOT creating a new one)
 SERVICE_ACCOUNT="document-ai-service@${PROJECT_ID}.iam.gserviceaccount.com"
 
 # Training configuration
@@ -138,9 +135,9 @@ enable_apis() {
         ((current++))
         echo -ne "\r  Enabling APIs: [$current/$total] $api"
         if gcloud services enable $api --quiet 2>/dev/null; then
-            echo -ne "\r  ${GREEN}✓${NC} Enabled: $api                                    \n"
+            echo -ne "\r  ${GREEN}✓${NC} Enabled: $api \n"
         else
-            echo -ne "\r  ${YELLOW}!${NC} Already enabled: $api                         \n"
+            echo -ne "\r  ${YELLOW}!${NC} Already enabled: $api \n"
         fi
     done
     
@@ -222,7 +219,16 @@ config_data = {
         'CAPITAL_CALL',
         'DISTRIBUTION_NOTICE',
         'FINANCIAL_STATEMENT',
+        'FINANCIAL_STATEMENT_AND_PCAP',
+        'INVESTMENT_OVEVIEW',
+        'INVESTOR_MEMOS',
+        'INVESTOR_PRESENTATION',
+        'INVESTOR_STATEMENT',
+        'LEGAL',
+        'MANAGEMENT_COMMENTARY',
+        'PCAP_STATEMENT',
         'PORTFOLIO_SUMMARY',
+        'PORTFOLIO_SUMMARY_AND_PCAP',
         'TAX',
         'OTHER'
     ],
@@ -231,7 +237,7 @@ config_data = {
 }
 
 config_ref.set(config_data, merge=True)
-print(f"✓ Initialized training config for processor {processor_name}")
+print(f"Initialized training config for processor {processor_name}")
 
 # Create indexes by adding and removing placeholder documents
 collections = ['processed_documents', 'training_batches']
@@ -243,7 +249,7 @@ for collection in collections:
         '_placeholder': True
     })
     placeholder_ref.delete()
-    print(f"✓ Initialized collection: {collection}")
+    print(f"Initialized collection: {collection}")
 EOF
 
     python3 init_firestore_config.py
@@ -252,7 +258,7 @@ EOF
     print_status "Firestore setup completed"
 }
 
-# Deploy Cloud Function with enhanced configuration
+# Deploy Cloud Function with configuration
 deploy_cloud_function() {
     print_info "Deploying Cloud Function..."
     
@@ -270,7 +276,7 @@ google-cloud-storage==2.10.0
 functions-framework==3.*
 EOF
     
-    # Deploy with comprehensive environment variables
+    # Deploy with environment variables
     gcloud functions deploy $FUNCTION_NAME \
         --runtime python39 \
         --trigger-resource $BUCKET_NAME \
@@ -290,14 +296,14 @@ EOF
     print_status "Cloud Function deployed successfully"
 }
 
-# Deploy Workflow with proper service account
+# Deploy Workflow
 deploy_workflow() {
     print_info "Deploying Workflow..."
     
-    # Ensure custom service account has necessary permissions (user must have already set this up)
+    # Ensure custom service account has necessary permissions
     print_info "Deploying workflow with custom service account: $SERVICE_ACCOUNT"
     
-    # Deploy workflow using the custom service account training-workflow.yaml
+    # Deploy workflow using the custom service account
     gcloud workflows deploy $WORKFLOW_NAME \
         --source=monitor-and-train.yaml \
         --location=$CLOUD_LOCATION \
@@ -323,6 +329,7 @@ create_scheduler_job() {
     # else
     #     print_warning "App Engine already exists. Skipping creation."
     # fi
+
     # Delete existing job if it exists
     if gcloud scheduler jobs describe $SCHEDULER_JOB_NAME --location=$CLOUD_LOCATION &> /dev/null; then
         print_warning "Deleting existing scheduler job..."
@@ -432,7 +439,7 @@ show_next_steps() {
     echo
 }
 
-# Main deployment process
+
 main() {
     echo -e "${BLUE}${BOLD}=== Document AI Automated Training Pipeline Deployment ===${NC}"
     echo "Project: $PROJECT_ID"
@@ -457,5 +464,4 @@ main() {
     fi
 }
 
-# Run main function
 main
