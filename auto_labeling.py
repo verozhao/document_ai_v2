@@ -1,16 +1,42 @@
 """Auto-labeling Script"""
 
 import json
+import os
 import requests
 import time
 from google.auth import default
 from google.auth.transport.requests import Request
 
-PROJECT_ID = "tetrix-462721"
-OCR_PROCESSOR_ID = "2369784b09e9d56a" 
-CLASSIFIER_PROCESSOR_ID = "ddc065df69bfa3b5"
-LOCATION = "us"
-BUCKET_NAME = "document-ai-test-veronica"
+# Load environment variables from .env file if available
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # dotenv not available, continue with os.environ
+    pass
+
+# Environment variables
+PROJECT_ID = os.environ.get('GCP_PROJECT_ID')
+OCR_PROCESSOR_ID = os.environ.get('OCR_PROCESSOR_ID')
+CLASSIFIER_PROCESSOR_ID = os.environ.get('DOCUMENT_AI_PROCESSOR_ID')
+LOCATION = os.environ.get('DOCUMENT_AI_LOCATION', 'us')
+BUCKET_NAME = os.environ.get('GCS_BUCKET_NAME')
+
+# Validate required environment variables
+required_vars = {
+    'GCP_PROJECT_ID': PROJECT_ID,
+    'OCR_PROCESSOR_ID': OCR_PROCESSOR_ID,
+    'DOCUMENT_AI_PROCESSOR_ID': CLASSIFIER_PROCESSOR_ID,
+    'GCS_BUCKET_NAME': BUCKET_NAME
+}
+
+missing_vars = [var for var, value in required_vars.items() if not value]
+if missing_vars:
+    raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
+
+print(f"Using project: {PROJECT_ID}")
+print(f"Using bucket: {BUCKET_NAME}")
+print(f"Using location: {LOCATION}")
 
 def get_access_token():
     """Get Google Cloud access token"""

@@ -37,11 +37,33 @@ Deployment script that sets up everything needed in GCP. Creates the Cloud Funct
 ## Quick Start
 
 ### Setup
-```bash
-export GCP_PROJECT_ID="your-project-id"
-export DOCUMENT_AI_PROCESSOR_ID="your-processor-id"
-export GCS_BUCKET_NAME="your-bucket-name"
 
+#### Environment Configuration
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env with actual values
+# Required:
+#   GCP_PROJECT_ID=project-id
+#   DOCUMENT_AI_PROCESSOR_ID=processor-id
+#   GCS_BUCKET_NAME=bucket-name
+#   OCR_PROCESSOR_ID=ocr-processor-id
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+#### Alternative: Export Variables
+```bash
+export GCP_PROJECT_ID="project-id"
+export DOCUMENT_AI_PROCESSOR_ID="processor-id"
+export GCS_BUCKET_NAME="bucket-name"
+export OCR_PROCESSOR_ID="ocr-processor-id"
+```
+
+#### Google Cloud Authentication
+```bash
 gcloud auth login
 gcloud auth application-default login
 gcloud config set project $GCP_PROJECT_ID
@@ -138,6 +160,8 @@ Training documents use Document AI-compatible JSON:
 document_ai_v2/
 ├── README.md                          # System documentation
 ├── requirements.txt                   # Python dependencies
+├── .env.example                       # Environment variables template
+├── .gitignore                         # Git ignore rules
 ├── deploy.sh                          # Infrastructure deployment script
 ├── main.py                            # Cloud Function for document processing
 ├── auto_labeling.py                   # Batch auto-labeling system
