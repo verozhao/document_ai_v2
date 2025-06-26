@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-"""Auto-labeling Script that actually works!"""
+"""Auto-labeling Script"""
 
 import json
 import requests
@@ -7,7 +6,6 @@ import time
 from google.auth import default
 from google.auth.transport.requests import Request
 
-# Configuration
 PROJECT_ID = "tetrix-462721"
 OCR_PROCESSOR_ID = "2369784b09e9d56a" 
 CLASSIFIER_PROCESSOR_ID = "ddc065df69bfa3b5"
@@ -192,7 +190,7 @@ def main():
             else:
                 print(f"Failed to process: {file_name}")
     
-    print(f"\n📊 Total documents processed and labeled: {total_processed}")
+    print(f"\nTotal documents processed and labeled: {total_processed}")
     
     if total_processed > 0:
         print("\nStarting import to Document AI processor...")
