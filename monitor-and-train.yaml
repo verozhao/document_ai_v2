@@ -49,10 +49,12 @@ main:
                           severity: "ERROR"
                     - return_import_failure:
                         return:
-                          status: "IMPORT_FAILED"
-                          import_operation: ${import_operation}
+                          status: "STEP_1_IMPORT_FAILED"
+                          step_1_automatic_import: "FAILED - Import operation failed"
+                          step_2_training_triggered: "NOT_ATTEMPTED"
+                          step_3_training_completion: "NOT_ATTEMPTED"
                           metadata: ${import_status.body.metadata}
-                          message: "Import operation failed"
+                          operation: ${import_operation}
                 - condition: ${import_status.body.metadata.commonMetadata.state == "SUCCEEDED"}
                   steps:
                     - log_import_success:
@@ -61,7 +63,7 @@ main:
                           text: "Import completed successfully! Starting training..."
                           severity: "INFO"
 
-                    # Start training after successful import
+                    # Step 2: Start training after successful import
                     - start_training_after_import:
                         call: http.post
                         args:
@@ -70,7 +72,7 @@ main:
                             type: OAuth2
                           body:
                             processorVersion:
-                              displayName: '${"auto-train-" + text.substring(sys.now(), 0, 10)}'
+                              displayName: "automatic-import-training-v2"
                         result: training_response
 
                     - log_training_started:
@@ -81,10 +83,13 @@ main:
 
                     - return_training_started:
                         return:
-                          status: "SUCCESS"
+                          status: "STEP_1_2_SUCCESS_MONITORING_TRAINING"
+                          step_1_automatic_import: "SUCCESS - Documents imported automatically ✅"
+                          step_2_training_triggered: "SUCCESS - Training triggered automatically ✅"
+                          step_3_training_completion: "IN_PROGRESS - Training started, monitoring separately"
                           import_operation: ${import_operation}
                           training_operation: ${training_response.body.name}
-                          message: "Import successful, training started!"
+                          message: "Import successful, training started! Monitor training operation: ${training_response.body.name}"
 
           - continue_import_monitoring:
               next: monitor_import
