@@ -132,14 +132,6 @@ Training documents use Document AI-compatible JSON:
 }
 ```
 
-## Performance Characteristics
-
-- **Processing Latency**: 2-5 seconds per document
-- **Throughput**: 100+ documents/minute with parallel processing
-- **Training Time**: 15-30 minutes for initial training, 5-10 minutes incremental
-- **Accuracy**: 85-95% depending on document type and training data quality
-- **Scalability**: Auto-scaling based on workload with configurable limits
-
 ## File Structure
 
 ```
@@ -194,25 +186,6 @@ document_ai_v2/
 }
 ```
 
-## Troubleshooting
-
-### Common Issues
-
-**Documents not processing:**
-- Verify GCS bucket permissions for service account
-- Check function deployment status and environment variables
-- Review function logs for processing errors
-
-**Training not triggering:**
-- Confirm document threshold configuration in Firestore
-- Verify document label distribution meets requirements
-- Check workflow execution history for failures
-
-**Low model accuracy:**
-- Review document labeling consistency and quality
-- Increase training dataset size and diversity
-- Validate document type distribution across categories
-
 ### Diagnostic Commands
 
 ```bash
@@ -231,53 +204,3 @@ gcloud ai operations list --filter="type:TRAIN_PROCESSOR_VERSION"
 gsutil ls gs://your-bucket/documents/
 gsutil ls gs://your-bucket/final_labeled_documents/
 ```
-
-## Security and Compliance
-
-### Access Control
-- **Service Account Isolation**: Dedicated service accounts with minimal required permissions
-- **IAM Best Practices**: Role-based access following principle of least privilege
-- **API Security**: OAuth2 authentication for all Google Cloud API interactions
-- **Network Security**: VPC-native services with private connectivity where applicable
-
-### Data Protection
-- **Encryption**: All data encrypted at rest and in transit
-- **Audit Logging**: Comprehensive logging for compliance and debugging
-- **Data Retention**: Configurable lifecycle policies for training data cleanup
-- **Privacy**: Document content processed only for classification, not stored persistently
-
-### Monitoring
-- **Health Checks**: Automated system validation every 6 hours via Cloud Scheduler
-- **Error Tracking**: Structured logging with severity levels and alerting
-- **Performance Metrics**: Processing latency, throughput, and accuracy tracking
-- **Cost Monitoring**: Resource usage tracking and optimization recommendations
-
-## Cost Optimization
-
-### Pay-per-Use Model
-- **Serverless Architecture**: Charges only for actual document processing
-- **Automatic Scaling**: Resources scale to zero when idle
-- **Efficient Batching**: Minimizes API calls through intelligent document grouping
-- **Storage Optimization**: Lifecycle policies for temporary training data
-
-### Resource Management
-- **Function Timeouts**: Configurable limits to prevent runaway processes
-- **Concurrent Execution**: Controlled parallelism to manage costs
-- **Training Efficiency**: Incremental training reduces compute requirements
-- **Data Lifecycle**: Automatic cleanup of intermediate processing files
-
-## Future Enhancements
-
-### Capability Expansion
-- **Multi-language Support**: Extend classification to non-English documents
-- **Advanced Analytics**: Real-time accuracy metrics and model drift detection
-- **Custom Training Schedules**: Business-specific training timing and triggers
-- **Integration APIs**: REST endpoints for external system connectivity
-
-### Operational Improvements
-- **A/B Testing**: Compare model versions with traffic splitting
-- **Model Monitoring**: Continuous performance evaluation and alerting
-- **Data Quality**: Automated validation of training data consistency
-- **Deployment Automation**: Blue-green deployments with automatic rollback
-
-This enterprise-grade system provides production-ready document processing automation with comprehensive monitoring, security, and operational controls suitable for mission-critical business applications.
