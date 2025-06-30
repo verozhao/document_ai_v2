@@ -82,7 +82,7 @@ check_prerequisites() {
         ((errors++))
     fi
     
-    # Check required files training-workflow.yaml
+    # Check required files monitor-and-train.yaml
     local required_files=("main.py" "requirements.txt" "monitor-and-train.yaml")
     for file in "${required_files[@]}"; do
         if [ ! -f "$file" ]; then

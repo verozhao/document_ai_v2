@@ -160,7 +160,7 @@ def import_documents_to_processor():
         return None
 
 def main():
-    print("Final successful auto-labeling for Document AI")
+    print("Auto-labeling for Document AI")
     print("Processing documents from multiple folders...")
     
     # Process multiple document types
@@ -182,7 +182,7 @@ def main():
     total_processed = 0
     
     for doc_type in folder_types:
-        print(f"\n📁 Processing {doc_type} documents...")
+        print(f"\nProcessing {doc_type} documents...")
         folder_path = f"documents/{doc_type}/"
         files = list_files_in_folder(folder_path)
         
@@ -248,6 +248,6 @@ def main():
 if __name__ == "__main__":
     success = main()
     if success:
-        print("\nMISSION ACCOMPLISHED: Auto-labeling pipeline working successfully!")
+        print("\nAuto-labeling pipeline working successfully!")
     else:
-        print("\nMission failed - check the errors above")
+        print("\ncheck the errors")
