@@ -6,6 +6,8 @@ import requests
 import time
 from google.auth import default
 from google.auth.transport.requests import Request
+import urllib.parse
+
 
 # Load environment variables from .env file if available
 try:
@@ -193,8 +195,23 @@ def main():
             file_path = file_item["name"]
             file_name = file_path.split("/")[-1]
             print(f"  Processing: {file_name}")
+
+            # Check if labeled document already exists
+            output_name = file_name.replace(".pdf", ".json")
+            output_path = f"final_labeled_documents/{doc_type}/{output_name}"
+            encoded_output_path = urllib.parse.quote(output_path, safe="")
+            check_url = f"https://storage.googleapis.com/storage/v1/b/{BUCKET_NAME}/o/{encoded_output_path}"
+
+            # Skip processing if already uploaded
+            access_token = get_access_token()
+            check_headers = {"Authorization": f"Bearer {access_token}"}
+            check_response = requests.get(check_url, headers=check_headers)
+
+            if check_response.status_code == 200:
+                print(f"Skipping already-processed file: {file_name}")
+                continue
             
-            # Process with Document AI
+            # Otherwise, process with Document AI
             processed = process_document_with_ai(file_path)
             if processed:
                 # Create labeled document

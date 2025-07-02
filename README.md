@@ -87,6 +87,7 @@ Deployed components:
 ```bash
 # Upload documents to trigger automated processing
 gsutil -m cp -r /path/to/documents/* gs://your-bucket/documents/
+# gsutil -m cp -r /Users/test/Downloads/classification-training-v1-Mar-2025/* gs://document-ai-test-veronica/documents/
 
 # Or process existing documents with auto-labeling script
 python3 auto_labeling.py
